@@ -15,13 +15,16 @@ def get_config(dir='config/config.yaml'):
         seq = [str(tmp) for tmp in seq]
         return ''.join(seq)
 
-    yaml.add_constructor('!join', join)
-    yaml.add_constructor('!concat', concat)
+    class MyLoader(yaml.FullLoader):
+        pass
+
+    yaml.add_constructor('!join', join, Loader=MyLoader)
+    yaml.add_constructor('!concat', concat, Loader=MyLoader)
+
     with open(dir, 'r') as f:
-        cfg = yaml.load(f)
+        cfg = yaml.load(f, Loader=MyLoader)
 
     check_dirs(cfg)
-
     return cfg
 
 
@@ -36,7 +39,6 @@ def check_dir(folder, mk_dir=True):
 
 def check_dirs(cfg):
     check_dir(cfg['data_root'], mk_dir=False)
-
     check_dir(cfg['result_root'])
     check_dir(cfg['ckpt_folder'])
     check_dir(cfg['result_sub_folder'])
